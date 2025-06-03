@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.28)
 enable_language(C ASM)
 set ( SOURCES 
 	DisplayImage.cpp
+	valorRGBlineal.s
+	valorYcomprimido.s
+	procesarImagen.s
 )
 set (LD_NOEXECSTACK_FLAG "-z noexecstack")
 set (ASM_OPTIONS "-x assembler-with-cpp -lm")
