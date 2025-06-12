@@ -58,6 +58,31 @@ procesarImagen:
     call valorRGBlineal ; Rlinear en xmm0
     movsd xmm3, xmm0   ; xmm3 = Rlinear
 
+    ; Calculo de Ylineal
+    ; Y = 0.2126 * R + 0.7152 * G + 0.0722 * B
+    movsd xmm4, qword [rel cR]
+    mulsd xmm4, xmm3    ; xmm4 = 0.2126 * R
+
+    movsd xmm5, qword [rel cG]
+    mulsd xmm5, xmm2    ; xmm5 = 0.7152 * G
+
+    movsd xmm6, qword [rel cB]
+    mulsd xmm6, xmm1    ; xmm6 = 0.0722 * B
+
+    addsd xmm4, xmm5
+    addsd xmm4, xmm6    ; xmm4 = Ylineal
+
+    ; Comprimir Ylineal
+    movsd xmn0, xmn4
+    call valorYcomprimido; 
+
+    ; Convertir a uchar y escribir en B, G, R
+    mulsd xmm0, xmm15
+    cvtsd2si edi, xmm0              ; convertir double a entero
+    mov byte [r8 + rax], dil        ; B
+    mov byte [r8 + rax + 1], dil    ; G
+    mov byte [r8 + rax + 2], dil    ; R
+
     ; j += 1
     inc r13d
     jmp .col_loop
@@ -74,3 +99,6 @@ procesarImagen:
 
 section .rodata
 d_255: dq 255.0
+cR: dq 0.2126
+cG: dq 0.7152
+cB: dq 0.0722
