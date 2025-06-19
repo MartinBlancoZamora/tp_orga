@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 	printf("Canales: %d\n", channels);
 	CV_Assert(image.depth() == CV_8U);
 
-	// Procesamiento
+	
 	resultado = procesarImagen(p, nRows, nCols, channels);
 
 	namedWindow("Grayscale", WINDOW_AUTOSIZE);
@@ -56,28 +56,28 @@ int procesarImagen(uchar *p, int nRows, int nCols, int channels)
 {
 
 	int i, j;
-	double valorR, valorG, valorB;	  // valores RGB en rango 0..1
-	double Rlineal, Glineal, Blineal; // El array esta ordenado como BGR
+	double valorR, valorG, valorB;	  
+	double Rlineal, Glineal, Blineal; 
 	double Ylineal, Yrgb;
 
 	for (i = 0; i < nRows; i++)
 	{
 		for (j = 0; j < nCols * channels; j += 3)
 		{
-			// B
+			
 			valorB = (((double)(*(p + j + i * nCols * channels))) / 255.0);
 			Blineal = valorRGBlineal(valorB);
-			// G
+			
 			valorG = (((double)(*(p + j + i * nCols * channels + 1))) / 255.0);
 			Glineal = valorRGBlineal(valorG);
-			// R
+			
 			valorR = (((double)(*(p + j + i * nCols * channels + 2))) / 255.0);
 			Rlineal = valorRGBlineal(valorR);
-			// Y lineal
+			
 			Ylineal = 0.2126 * Rlineal + 0.7152 * Glineal + 0.0722 * Blineal;
-			// Y comprimido
+			
 			Yrgb = 255 * valorYcomprimido(Ylineal);
-			// RGB grayscale
+			
 			*(p + j + i * nCols * channels) = FLOAT_TO_INT((Yrgb));
 			*(p + j + i * nCols * channels + 1) = FLOAT_TO_INT((Yrgb));
 			*(p + j + i * nCols * channels + 2) = FLOAT_TO_INT((Yrgb));
