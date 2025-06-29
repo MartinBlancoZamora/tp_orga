@@ -6,7 +6,6 @@ set ( SOURCES
    	valorRGBlineal.s 
     	valorYcomprimido.s
 )
-)
 set (LD_NOEXECSTACK_FLAG "-z noexecstack")
 set (ASM_OPTIONS "-x assembler-with-cpp -lm")
 set (CMAKE_BUILD_TYPE Debug)
