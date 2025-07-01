@@ -1,28 +1,33 @@
 .section .text
     .global valorYcomprimido
     .extern pow
-
-
-valorYcomprimido:
  
+valorYcomprimido:
+    push %rbp
+    mov %rsp, %rbp
+
     movsd umbral(%rip), %xmm1
     comisd %xmm1, %xmm0 
-    jb .menor 
+    jbe .menor 
 
-    
-    movsd const_inv24(%rip), %xmm1 
-    call pow           
+    movsd const_inv24(%rip), %xmm1
+    sub $8, %rsp
+    call pow
+    add $8, %rsp
 
     movsd const_1055(%rip), %xmm1
     mulsd %xmm1, %xmm0      
 
     movsd const_0055(%rip), %xmm1
     subsd %xmm1, %xmm0      
-    ret
-
+    jmp .fin
 .menor:
     movsd const_1292(%rip), %xmm1
-    mulsd %xmm1, %xmm0      
+    mulsd %xmm1, %xmm0
+    jmp .fin
+
+.fin:
+    leave
     ret
 
 .section .rodata

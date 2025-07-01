@@ -1,100 +1,89 @@
-
 .section .text
     .global procesarImagen
     .extern valorRGBlineal
     .extern valorYcomprimido
 
-
 procesarImagen:
     pushq   %rbp
     movq    %rsp, %rbp
-
-    
+    pushq   %rbx
     pushq   %r12
-    pushq   %r13
+    subq    $48, %rsp 
 
-    movq    %rdi, %r8       
-    movl    %esi, %r9d      
-    movl    %edx, %r10d     
-    movl    %ecx, %r11d     
+    movq    %rdi, %rbx
+    movq    %rsi, %r12
+    movl    %edx, -8(%rbp)
+    movl    %ecx, -12(%rbp)
+    movl    %r8d, -16(%rbp)
 
     movsd   d_255(%rip), %xmm15
-
-    xorl    %r12d, %r12d    
+    movl    $0, -20(%rbp)
 
 .fila_loop:
-    cmpl    %r9d, %r12d     
-    jge     .fin            
+    movl    -20(%rbp), %eax
+    cmpl    -8(%rbp), %eax
+    jge     .fin_de_todo
 
-    xorl    %r13d, %r13d    
+    movl    $0, -24(%rbp)
 
 .col_loop:
-    cmpl    %r10d, %r13d    
-    jge     .sig_fila       
+    movl    -24(%rbp), %eax
+    cmpl    -12(%rbp), %eax
+    jge     .sig_fila
 
-    movl    %r12d, %eax     
-    imull   %r10d, %eax     
-    addl    %r13d, %eax     
-    imull   %r11d, %eax     
-    movslq  %eax, %rax      
+    movl    -20(%rbp), %eax
+    imull   -12(%rbp), %eax
+    addl    -24(%rbp), %eax
+    imull   -16(%rbp), %eax
+    movslq  %eax, %r9
 
-    movzbl  (%r8, %rax, 1), %ebx  
-    cvtsi2sd %ebx, %xmm0           
-    divsd   %xmm15, %xmm0         
-    call    valorRGBlineal        
-    movsd   %xmm0, %xmm1          
+    movzbl  (%rbx, %r9, 1), %edi
+    cvtsi2sd %edi, %xmm0; divsd %xmm15, %xmm0
+    #call valorRGBlineal
+    movsd   %xmm0, -32(%rbp)
 
-    movzbl  1(%r8, %rax, 1), %ebx 
-    cvtsi2sd %ebx, %xmm0          
-    divsd   %xmm15, %xmm0        
-    call    valorRGBlineal
-    movsd   %xmm0, %xmm2          
+    movzbl  1(%rbx, %r9, 1), %edi
+    cvtsi2sd %edi, %xmm0; divsd %xmm15, %xmm0
+    #call valorRGBlineal
+    movsd   %xmm0, -40(%rbp)
 
-    movzbl  2(%r8, %rax, 1), %ebx 
-    cvtsi2sd %ebx, %xmm0          
-    divsd   %xmm15, %xmm0        
-    call    valorRGBlineal
-    movsd   %xmm0, %xmm3          
+    movzbl  2(%rbx, %r9, 1), %edi
+    cvtsi2sd %edi, %xmm0; divsd %xmm15, %xmm0
+    #call valorRGBlineal
+    movsd   %xmm0, -48(%rbp)
 
-    movsd   cR(%rip), %xmm4
-    mulsd   %xmm3, %xmm4          
-    movsd   cG(%rip), %xmm5
-    mulsd   %xmm2, %xmm5         
-    movsd   cB(%rip), %xmm6
-    mulsd   %xmm1, %xmm6         
-
-    addsd   %xmm5, %xmm4
-    addsd   %xmm6, %xmm4         
+    movsd   cR(%rip), %xmm1
+    mulsd   -48(%rbp), %xmm1
+    movsd   cG(%rip), %xmm2
+    mulsd   -40(%rbp), %xmm2
+    movsd   cB(%rip), %xmm3
+    mulsd   -32(%rbp), %xmm3
+    addsd   %xmm2, %xmm1
+    addsd   %xmm3, %xmm1
     
-    
-    movsd   %xmm4, %xmm0          
-    call    valorYcomprimido      
+    movsd   %xmm1, %xmm0
+    #call valorYcomprimido
 
-    mulsd   %xmm15, %xmm0         
-    cvtsd2si %xmm0, %ebx         
+    movsd   d_255(%rip), %xmm1
+    mulsd   %xmm1, %xmm0
+    cvtsd2si %xmm0, %r8d
+    movb    %r8b, (%r12, %r9, 1)
+    movb    %r8b, 1(%r12, %r9, 1)
+    movb    %r8b, 2(%r12, %r9, 1)
 
-    
-    movb    %bl, (%r8, %rax, 1)    
-    movb    %bl, 1(%r8, %rax, 1)   
-    movb    %bl, 2(%r8, %rax, 1)   
-
-    incl    %r13d                 
+    addl    $1, -24(%rbp)
     jmp     .col_loop
 
 .sig_fila:
-    incl    %r12d                 
+    addl    $1, -20(%rbp)
     jmp     .fila_loop
 
-.fin:
-    movl    $0, %eax              
-
-    
-    popq    %r13
+.fin_de_todo:
+    addq    $48, %rsp
     popq    %r12
-
+    popq    %rbx
     popq    %rbp
     ret
-
 
 .section .rodata
 .align 8

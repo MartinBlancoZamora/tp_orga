@@ -6,7 +6,7 @@ using namespace cv;
 
 extern "C" double valorRGBlineal(double RGBcomprimido);
 extern "C" double valorYcomprimido(double valorYlineal);
-extern "C" int procesarImagen(uchar* p, int nRows, int nCols, int channels);
+extern "C" int procesarImagen(const uchar *pSource, uchar *pDestination, int nRows, int nCols, int channels);
 
 int main(int argc, char **argv)
 {
@@ -21,33 +21,37 @@ int main(int argc, char **argv)
 		printf("Uso:  testopencv <imagen>\n");
 		return (-1);
 	}
-	Mat image;
-	image = imread(argv[1], IMREAD_COLOR);
-	if (!image.data)
+	Mat imageOriginal;
+	imageOriginal = imread(argv[1], IMREAD_COLOR);
+	if (!imageOriginal.data)
 	{
 		printf("Sin datos de imagen... \n");
 		return (-1);
 	}
 	namedWindow("Original", WINDOW_AUTOSIZE);
-	imshow("Original", image);
+	imshow("Original", imageOriginal);
 
-	channels = image.channels();
-	nRows = image.rows;
-	nCols = image.cols;
-	p = image.data;
+	channels = imageOriginal.channels();
+	nRows = imageOriginal.rows;
+	nCols = imageOriginal.cols;
+	size_t buffer_size = nRows * nCols * channels;
+
+	Mat imageDestination(nRows, nCols, imageOriginal.type());
+	const unsigned char *pSource = imageOriginal.data;
+	unsigned char *pDestination = imageDestination.data;
 
 	printf("CTRL+C para finalizar\n\n");
 	printf("Filas: %d\n", nRows);
 	printf("Columnas: %d\n", nCols);
 	printf("Canales: %d\n", channels);
-	CV_Assert(image.depth() == CV_8U);
+	CV_Assert(imageOriginal.depth() == CV_8U);
 
-	
-	resultado = procesarImagen(p, nRows, nCols, channels);
+	resultado = procesarImagen(pSource, pDestination, nRows, nCols, channels);
 
 	namedWindow("Grayscale", WINDOW_AUTOSIZE);
-	imshow("Grayscale", image);
+	imshow("Grayscale", imageDestination);
 
 	waitKey(0);
+	delete[] pDestination;
 	return (0);
 }
